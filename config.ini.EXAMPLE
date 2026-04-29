@@ -1,0 +1,21 @@
+[mqtt]
+
+broker = homeassistant.lan
+username = CHANGE_ME
+password = CHANGE_ME
+port = 1883
+timeout = 60
+
+[sensor]
+
+pins = ["D4"]                               # Must be an array. ["D4", "D5", "D6", "D7"]
+types = ["DHT-11"]                          # Must be an array. ["DHT11", "DHT-11", "DHT22", "DHT-22"]
+
+[homeassistant]
+
+device_names = ["Main_Cabin"]                   # Must compliment pin. ["name-one","name-two","name-three","name-four"]
+topic_base = homeassistant/switch
+topic_config = conf
+topic_state = state
+topic_set = set
+topic_availability = availability
