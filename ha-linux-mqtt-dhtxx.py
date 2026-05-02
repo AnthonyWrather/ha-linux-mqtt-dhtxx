@@ -262,43 +262,43 @@ def configure_mqtt_devices():
     time.sleep(1)
     if client.is_connected():
         logging.info("Sending config to MQTT")
-        for this_one in all_devices:
+        for device, data in all_devices.items():
             # Publish the Device config for auto discovery.
-            logging.info(f"Processing device {this_one}")
+            logging.info(f"Processing device {device}")
             # Set the Temperature payload.
-            logging.info(f"State topic: {all_devices[this_one][0]['topic_state']}")
-            ENVIRONMENT_T_PAYLOAD["name"] = this_one + "_Temperature"
-            ENVIRONMENT_T_PAYLOAD["unique_id"] = this_one + "_tmp01ae"
-            ENVIRONMENT_T_PAYLOAD["state_topic"] = all_devices[this_one][0]['topic_state']
-            ENVIRONMENT_T_PAYLOAD["device"]["identifiers"][0] = this_one + "_dev01ae"            
-            ENVIRONMENT_T_PAYLOAD["device"]["name"] = "Sensor " + this_one            
+            logging.info(f"State topic: {data[0]['topic_state']}")
+            ENVIRONMENT_T_PAYLOAD["name"] = device + "_Temperature"
+            ENVIRONMENT_T_PAYLOAD["unique_id"] = device + "_tmp01ae"
+            ENVIRONMENT_T_PAYLOAD["state_topic"] = data[0]['topic_state']
+            ENVIRONMENT_T_PAYLOAD["device"]["identifiers"][0] = device + "_dev01ae"
+            ENVIRONMENT_T_PAYLOAD["device"]["name"] = "Sensor " + device
             msg = json.dumps(ENVIRONMENT_T_PAYLOAD)
 
-            result = client.publish(all_devices[this_one][0]['topic_config_t'], msg)
+            result = client.publish(data[0]['topic_config_t'], msg)
             status = result[0]
             if status != 0:
-                logging.info(f'Failed to send SENSOR config to topic {all_devices[this_one][0]['topic_config_t']}')
+                logging.info(f'Failed to send SENSOR config to topic {data[0]['topic_config_t']}')
             else:
-                logging.info(f'Successfully sent SENSOR config to topic {all_devices[this_one][0]['topic_config_t']}')
+                logging.info(f'Successfully sent SENSOR config to topic {data[0]['topic_config_t']}')
 
             # Set the Humidity payload.
-            logging.info(f"Processing additional device {this_one}")
-            logging.info(f"State topic: {all_devices[this_one][0]['topic_state']}")
-            ENVIRONMENT_H_PAYLOAD["name"] = this_one + "_Humidity"
-            ENVIRONMENT_H_PAYLOAD["unique_id"] = this_one + "_hum01ae"
-            ENVIRONMENT_H_PAYLOAD["state_topic"] = all_devices[this_one][0]['topic_state']
-            ENVIRONMENT_H_PAYLOAD["device"]["identifiers"][0] = this_one + "_dev01ae"
-            ENVIRONMENT_H_PAYLOAD["device"]["name"] = "Sensor " + this_one            
+            logging.info(f"Processing additional device {device}")
+            logging.info(f"State topic: {data[0]['topic_state']}")
+            ENVIRONMENT_H_PAYLOAD["name"] = device + "_Humidity"
+            ENVIRONMENT_H_PAYLOAD["unique_id"] = device + "_hum01ae"
+            ENVIRONMENT_H_PAYLOAD["state_topic"] = data[0]['topic_state']
+            ENVIRONMENT_H_PAYLOAD["device"]["identifiers"][0] = device + "_dev01ae"
+            ENVIRONMENT_H_PAYLOAD["device"]["name"] = "Sensor " + device
             msg = json.dumps(ENVIRONMENT_H_PAYLOAD)
 
-            result = client.publish(all_devices[this_one][0]['topic_config_h'], msg)
+            result = client.publish(data[0]['topic_config_h'], msg)
             status = result[0]
             if status != 0:
-                logging.info(f'Failed to send SENSOR config to topic {all_devices[this_one][0]['topic_config_h']}')
+                logging.info(f'Failed to send SENSOR config to topic {data[0]['topic_config_h']}')
             else:
-                logging.info(f'Successfully sent SENSOR config to topic {all_devices[this_one][0]['topic_config_h']}')
+                logging.info(f'Successfully sent SENSOR config to topic {data[0]['topic_config_h']}')
 
-        
+
     client.loop_stop()
     logging.info("Disconnected from MQTT")
     logging.info('=========================== END CONFIG ==========================')
@@ -321,11 +321,11 @@ def run():
             logging.info("==================================================================")
             start_time = dt.datetime.now()
             logging.info(start_time.strftime("%Y-%m-%d %H:%M:%S"))
-            for device, config in all_devices.items():
+            for device, data in all_devices.items():
                 logging.info('==================================================================')
-                this_pin = config[0]["pin"]
-                this_type = config[0]["type"]
-                topic = config[0]["topic_state"]
+                this_pin = data[0]["pin"]
+                this_type = data[0]["type"]
+                topic = data[0]["topic_state"]
                 temperature_c = 0
                 humidity = 0
                 status, temperature_c, humidity = get_sensor_data(this_pin, this_type, temperature_c, humidity)
@@ -356,8 +356,8 @@ if __name__ == '__main__':
     types = json.loads(config.get("sensor","types"))
     count = 0
     # Set the pins in the main struct
-    for this_one in all_devices:
-        all_devices[this_one][0]['pin'] = pins[count]
-        all_devices[this_one][0]['type'] = types[count]
+    for device in all_devices:
+        all_devices[device][0]['pin'] = pins[count]
+        all_devices[device][0]['type'] = types[count]
         count += 1
     run()
